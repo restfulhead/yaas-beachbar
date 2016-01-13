@@ -1,0 +1,3 @@
+<included>
+	<logger name="us.arvatosystems.com.yaas" level="DEBUG" />
+</included>

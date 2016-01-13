@@ -1,0 +1,14 @@
+{
+    "name": "hybris Service",
+    "references":[
+        {
+            "namespace": "api",
+            "description": "API definition of beachbar",
+            "path": "/",
+            "type": "raml",
+            "fileName": "beachbar.raml",
+            "packageName": "us.arvatosystems.com.yaas.api.generated",
+            "async": false
+        }
+    ]
+}
