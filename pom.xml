@@ -40,6 +40,11 @@
 			<artifactId>service-sdk-libraries</artifactId>
 			<version>${service-sdk.version}</version>
 		</dependency>
+		<dependency>
+		  <groupId>com.sap.cloud.yaas.service-sdk</groupId>
+		  <artifactId>service-sdk-authorization</artifactId>
+		  <version>${service-sdk.version}</version>
+		</dependency>
 
 		<!-- Jersey Dependencies -->
 		<dependency>
@@ -67,6 +72,16 @@
 			<artifactId>jersey-bean-validation</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.glassfish.jersey.connectors</groupId>
+		    <artifactId>jersey-apache-connector</artifactId>
+		    <version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+	      <groupId>org.apache.httpcomponents</groupId>
+	      <artifactId>httpcore</artifactId>
+	      <version>4.4.4</version>
+	    </dependency>
 
 		<!-- Spring Dependencies -->
 		<dependency>
@@ -155,6 +170,15 @@
 							<goal>generate-service</goal>
 						</goals>
 					</execution>
+					<execution>
+		                <id>client-generation1</id>
+		                <goals>
+		                    <goal>generate-client</goal>
+		                </goals>
+		                <configuration>
+		                    <sourceRamlUri>https://api.yaas.io/arvato/sms/v1/public/api/api.raml</sourceRamlUri>
+		                </configuration>
+		            </execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -168,7 +192,9 @@
 					</webApp>
 				</configuration>
 			</plugin>
+			
 		</plugins>
+		
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
@@ -187,6 +213,7 @@
 										<versionRange>[${service-sdk.version},)</versionRange>
 										<goals>
 											<goal>generate-service</goal>
+											<goal>generate-client</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
@@ -197,26 +224,16 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-				<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.build.directory}/generated-sources/service</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-releases</id>
+			<name>Spring Releases</name>
+			<url>https://repo.spring.io/libs-release</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 </project>
