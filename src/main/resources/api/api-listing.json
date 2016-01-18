@@ -1,9 +1,9 @@
 {
-    "name": "hybris Service",
+    "name": "Beach Bar Service",
     "references":[
         {
             "namespace": "api",
-            "description": "API definition of beachbar",
+            "description": "API definition of beach bar",
             "path": "/",
             "type": "raml",
             "fileName": "beachbar.raml",

@@ -7,6 +7,29 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<!-- include Service SDK libraries -->
+	<import resource="classpath:/META-INF/libraries-spring.xml"/>
+
+	<!-- enable component scan -->	
 	<context:component-scan base-package="us.arvatosystems.com.yaas"/>
 
+	<!-- import placeholder values from property files and environment, see default.properties -->
+	<context:property-placeholder location="classpath:/default.properties,classpath*:test.properties"/>
+
+	<!-- take annotation-based configuration into account, when instantiating beans -->
+	<context:annotation-config/>
+	
+	<bean id="authorizedExecutionTemplate" autowire-candidate="true" class="com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecutionTemplate">
+	    <constructor-arg ref="accessTokenProvider"/>
+	</bean>
+	
+	<bean id="accessTokenProvider" class="com.sap.cloud.yaas.servicesdk.authorization.cache.SimpleCachingProviderWrapper">
+	    <constructor-arg>
+	        <bean class="com.sap.cloud.yaas.servicesdk.authorization.protocol.ClientCredentialsGrantProvider">
+	            <property name="tokenEndpointUri" value="${OAUTH2_TOKEN_ENDPOINT_URL}"/>
+	            <property name="clientId" value="${CLIENT_ID}"/>
+	            <property name="clientSecret" value="${CLIENT_SECRET}"/>
+	        </bean>
+	    </constructor-arg>
+	</bean>
 </beans>

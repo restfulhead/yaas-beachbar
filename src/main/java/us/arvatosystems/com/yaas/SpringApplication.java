@@ -14,7 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.cloud.yaas.api.ArvatoSmsServiceClient;
+import com.sap.cloud.yaas.api.HybrisPubSubServiceApiClient;
 import com.sap.cloud.yaas.servicesdk.jerseysupport.logging.RequestResponseLoggingFilter;
 
 @Configuration
@@ -32,6 +34,29 @@ public class SpringApplication
 	@Bean
 	public ArvatoSmsServiceClient createArvatoSmsServiceClient()
 	{
+		final ArvatoSmsServiceClient client = new ArvatoSmsServiceClient(ARVATO_SMS_SERVICE_BASE_URI,
+				ClientBuilder.newClient(createClientConfig())).withUriParam("tenant", tenant);
+
+		return client;
+	}
+
+	@Bean
+	public HybrisPubSubServiceApiClient createHybrisPubSubServiceApiClient()
+	{
+		final HybrisPubSubServiceApiClient client = new HybrisPubSubServiceApiClient(HybrisPubSubServiceApiClient.DEFAULT_BASE_URI,
+				ClientBuilder.newClient(createClientConfig()));
+
+		return client;
+	}
+
+	@Bean
+	public ObjectMapper createObjectMapper()
+	{
+		return new ObjectMapper();
+	}
+
+	private ClientConfig createClientConfig()
+	{
 		// connection pooling
 		final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
 
@@ -44,10 +69,6 @@ public class SpringApplication
 		// with logging
 		clientConfig.register(new RequestResponseLoggingFilter(LOG, 999999));
 
-		final ArvatoSmsServiceClient client = new ArvatoSmsServiceClient(ARVATO_SMS_SERVICE_BASE_URI,
-				ClientBuilder.newClient(clientConfig))
-				.withUriParam("tenant", tenant);
-
-		return client;
+		return clientConfig;
 	}
 }
