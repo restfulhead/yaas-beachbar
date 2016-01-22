@@ -50,5 +50,10 @@ public class SMSMessage
 		this.messageText = message;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "SMSMessage [fromNumber=" + fromNumber + ", toNumber=" + toNumber + ", messageText=" + messageText + "]";
+	}
 
 }

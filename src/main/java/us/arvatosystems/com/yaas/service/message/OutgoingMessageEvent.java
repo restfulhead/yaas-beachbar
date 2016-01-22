@@ -22,4 +22,10 @@ public class OutgoingMessageEvent extends ApplicationEvent
 		return message;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "OutgoingMessageEvent [source=" + source + ", message=" + message + "]";
+	}
+
 }

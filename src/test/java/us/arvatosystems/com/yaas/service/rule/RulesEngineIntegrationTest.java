@@ -1,4 +1,4 @@
-package us.arvatosystems.com.yaas.api.service.rule;
+package us.arvatosystems.com.yaas.service.rule;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;

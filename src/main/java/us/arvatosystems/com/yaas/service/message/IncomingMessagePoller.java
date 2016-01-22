@@ -36,6 +36,9 @@ public class IncomingMessagePoller
 	@Value("${TENANT}")
 	private String tenant;
 
+	@Value("${polling.disabled:false}")
+	private boolean pollingDisabled;
+
 	@Autowired
 	private AuthorizedExecutionTemplate authTemplate;
 
@@ -54,30 +57,32 @@ public class IncomingMessagePoller
 	@Scheduled(fixedDelay = 5000)
 	public void checkForNewMessages()
 	{
-		LOG.info("Checking for new messages...");
+		if (pollingDisabled)
+		{
+			LOG.info("Checking for new messages...");
 
-		final Response response = authTemplate.executeAuthorized(new AuthorizationScope(), new DiagnosticContext(
-				"not implemented yet", Integer.valueOf(0)),
-				new AuthorizedExecutionCallback<Response>()
-				{
-					@Override
-					public Response execute(final AccessToken token)
+			final Response response = authTemplate.executeAuthorized(new AuthorizationScope(), new DiagnosticContext(
+					"not implemented yet", Integer.valueOf(0)), new AuthorizedExecutionCallback<Response>()
 					{
-						return client.topics().topicOwnerClientEventType(PUBSUB_TOPIC_OWNER, PUBSUB_EVENT_TYPE).read().preparePost()
-								.withHeader("Authorization", "Bearer " + token.getValue())
-								.withHeader("Content-type", "application/json").withHeader("Accept", "application/json").execute();
-					}
-				});
+				@Override
+				public Response execute(final AccessToken token)
+				{
+					return client.topics().topicOwnerClientEventType(PUBSUB_TOPIC_OWNER, PUBSUB_EVENT_TYPE).read().preparePost()
+							.withHeader("Authorization", "Bearer " + token.getValue()).withHeader("Content-type", "application/json")
+							.withHeader("Accept", "application/json").execute();
+				}
+			});
 
-		if (response.getStatusInfo().getFamily().equals(Status.Family.SUCCESSFUL))
-		{
-			LOG.debug("PubSub read reuest was successfull (Status: {})", response.getStatus());
-			processNewMessages(response.readEntity(PubSubReadResponse.class));
-		}
-		else
-		{
-			LOG.error("Unable to read messages from PubSub because of {} {}", response.getStatus(),
-					response.readEntity(String.class));
+			if (response.getStatusInfo().getFamily().equals(Status.Family.SUCCESSFUL))
+			{
+				LOG.debug("PubSub read reuest was successfull (Status: {})", response.getStatus());
+				processNewMessages(response.readEntity(PubSubReadResponse.class));
+			}
+			else
+			{
+				LOG.error("Unable to read messages from PubSub because of {} {}", response.getStatus(),
+						response.readEntity(String.class));
+			}
 		}
 	}
 
