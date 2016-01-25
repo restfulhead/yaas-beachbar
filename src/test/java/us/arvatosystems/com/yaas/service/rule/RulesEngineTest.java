@@ -13,11 +13,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import us.arvatosystems.com.yaas.domain.Product;
-import us.arvatosystems.com.yaas.service.rule.RulesEngineService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/META-INF/applicationContext.xml" })
-public class RulesEngineIntegrationTest
+public class RulesEngineTest
 {
 	@Autowired
 	private RulesEngineService rulesEngine;

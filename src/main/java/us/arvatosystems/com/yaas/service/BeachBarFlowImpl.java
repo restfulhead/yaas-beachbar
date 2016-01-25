@@ -2,6 +2,7 @@ package us.arvatosystems.com.yaas.service;
 import static au.com.ds.ef.FlowBuilder.from;
 import static au.com.ds.ef.FlowBuilder.on;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jersey.repackaged.com.google.common.base.Throwables;
@@ -86,7 +87,7 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 					@Override
 					public void call(final Conversation ctx) throws Exception
 					{
-						if (parseOrderConfirmationAndSendFinalMessage(ctx))
+						if (placeOrCancelOrderAndSendFinalMessage(ctx))
 						{
 							ctx.trigger(Events.interactionComplete);
 						}
@@ -120,7 +121,7 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 	@Override
 	public void proceed(final Conversation ctx, final IncomingMessageEvent event)
 	{
-		ctx.setLastMessage(event.getMessage().getMessageText());
+		ctx.setLastMessageFromCustomer(event.getMessage().getMessageText());
 		try
 		{
 			ctx.trigger(Events.incomingMessageReceived);
@@ -139,17 +140,20 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 
 	protected boolean parseOrderAndSendSummary(final Conversation ctx)
 	{
-		final List<Product> items = rulesEngine.identifyBeverages(ctx.getLastMessage());
+		final List<Product> items = rulesEngine.identifyBeverages(ctx.getLastMessageFromCustomer());
 
 		if (items.size() > 0)
 		{
+			// remember identified products
+			// perhaps in future we could add them to the YaaS shopping cart
+			ctx.getCurrentOrder().addAll(items);
+
 			final StringBuilder sb = new StringBuilder("Confirm your order of ");
 			for (final Product product : items)
 			{
 				sb.append("1 " + product.getName()).append(", ");
 			}
 
-			// TODO add items to shopping cart and state engine
 			sendMessage(ctx, sb.substring(0, sb.length() - 2) + ". Reply YES or NO");
 			return true;
 		}
@@ -158,24 +162,31 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 		return false;
 	}
 
-	protected boolean parseOrderConfirmationAndSendFinalMessage(final Conversation ctx)
+	protected boolean placeOrCancelOrderAndSendFinalMessage(final Conversation ctx)
 	{
-		final String msg = ctx.getLastMessage().toLowerCase();
+		final String msg = ctx.getLastMessageFromCustomer().toLowerCase();
 		if (msg.startsWith("yes"))
 		{
-			// TODO place order
+			// ok, we're good to go with placing the order
+			placeOrder(ctx);
 			sendMessage(ctx, "Thank you! Your order is in the works.");
 			return true;
 		}
 		else if (msg.startsWith("no"))
 		{
-			// TODO cancel order (if necessary)
+			// nope, customer doesn't want products
+			ctx.getCurrentOrder().clear();
 			sendMessage(ctx, "Ok, we canceled your order.");
 			return true;
 		}
 
 		sendMessage(ctx, "Please reply with YES or NO");
 		return false;
+	}
+
+	protected void placeOrder(final Conversation ctx)
+	{
+		// TODO
 	}
 
 	protected void sendMessage(final Conversation ctx, final String message)
@@ -206,14 +217,16 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 		private final String customerNo;
 		private final String beachBarNo;
 
-		private String lastMessage;
+		private String lastMessageFromCustomer;
+
+		private final List<Product> currentOrder = new ArrayList<>();
 
 		public Conversation(final String customerNo, final String beachBarNo, final String lastMessage)
 		{
 			super(customerNo);
 			this.customerNo = customerNo;
 			this.beachBarNo = beachBarNo;
-			this.lastMessage = lastMessage;
+			this.lastMessageFromCustomer = lastMessage;
 		}
 
 		public String getCustomerNo()
@@ -226,16 +239,20 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 			return beachBarNo;
 		}
 
-		public String getLastMessage()
+		public String getLastMessageFromCustomer()
 		{
-			return lastMessage;
+			return lastMessageFromCustomer;
 		}
 
-		public void setLastMessage(final String lastMessage)
+		public void setLastMessageFromCustomer(final String lastMessage)
 		{
-			this.lastMessage = lastMessage;
+			this.lastMessageFromCustomer = lastMessage;
 		}
 
+		public List<Product> getCurrentOrder()
+		{
+			return currentOrder;
+		}
 	}
 
 

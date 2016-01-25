@@ -24,17 +24,19 @@ import com.sap.cloud.yaas.servicesdk.jerseysupport.logging.RequestResponseLoggin
 @EnableScheduling
 public class SpringApplication
 {
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SpringApplication.class);
-
-	private static final String ARVATO_SMS_SERVICE_BASE_URI = "https://api.yaas.io/arvato/sms/v1/tenants/{tenant}";
+	private static final org.slf4j.Logger REQUEST_RESPONSE_LOG = LoggerFactory
+			.getLogger("us.arvatosystems.com.yaas.net.request_response");
 
 	@Value("${TENANT}")
 	private String tenant;
 
+	@Value("${SMS_SERVICE_ENDPOINT_URL}")
+	private String smsServiceBaseUri;
+
 	@Bean
 	public ArvatoSmsServiceClient createArvatoSmsServiceClient()
 	{
-		final ArvatoSmsServiceClient client = new ArvatoSmsServiceClient(ARVATO_SMS_SERVICE_BASE_URI,
+		final ArvatoSmsServiceClient client = new ArvatoSmsServiceClient(smsServiceBaseUri,
 				ClientBuilder.newClient(createClientConfig())).withUriParam("tenant", tenant);
 
 		return client;
@@ -67,7 +69,7 @@ public class SpringApplication
 		clientConfig.connectorProvider(new ApacheConnectorProvider());
 
 		// with logging
-		clientConfig.register(new RequestResponseLoggingFilter(LOG, 999999));
+		clientConfig.register(new RequestResponseLoggingFilter(REQUEST_RESPONSE_LOG, 999999));
 
 		return clientConfig;
 	}
