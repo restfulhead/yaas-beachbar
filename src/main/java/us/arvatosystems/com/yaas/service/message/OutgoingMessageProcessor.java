@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import us.arvatosystems.com.yaas.Util;
+
 import com.sap.cloud.yaas.api.ArvatoSmsServiceClient;
 import com.sap.cloud.yaas.servicesdk.authorization.AccessToken;
 import com.sap.cloud.yaas.servicesdk.authorization.AuthorizationScope;
@@ -35,8 +37,8 @@ public class OutgoingMessageProcessor implements ApplicationListener<OutgoingMes
 	@Override
 	public void onApplicationEvent(final OutgoingMessageEvent event)
 	{
-		LOG.info("Sending new message to '{}' with text '{}'.", event.getMessage().getToNumber(), event.getMessage()
-				.getMessageText());
+		LOG.info("Sending new message to '{}' with text '{}'.", Util.maskPhoneNo(event.getMessage().getToNumber()), event
+				.getMessage().getMessageText());
 
 		final Response response = authTemplate.executeAuthorized(new AuthorizationScope(), new DiagnosticContext(
 				"not implemented yet", Integer.valueOf(0)), new AuthorizedExecutionCallback<Response>()
@@ -52,11 +54,13 @@ public class OutgoingMessageProcessor implements ApplicationListener<OutgoingMes
 
 		if (response.getStatusInfo().getFamily().equals(Status.Family.SUCCESSFUL))
 		{
-			LOG.debug("Message successfully sent to {} (Status: {})", event.getMessage().getToNumber(), response.getStatus());
+			LOG.debug("Message successfully sent to {} (Status: {})", Util.maskPhoneNo(event.getMessage().getToNumber()),
+					response.getStatus());
 		}
 		else
 		{
-			LOG.error("Unable to sent message to {} because of {} {}", event.getMessage().getToNumber(), response.getStatus(),
+			LOG.error("Unable to sent message to {} because of {} {}", Util.maskPhoneNo(event.getMessage().getToNumber()),
+					response.getStatus(),
 					response.readEntity(String.class));
 		}
 	}

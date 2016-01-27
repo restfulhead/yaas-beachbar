@@ -3,6 +3,8 @@ package us.arvatosystems.com.yaas.service.message;
 import java.io.IOException;
 import java.util.Collections;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -14,8 +16,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import us.arvatosystems.com.yaas.Util;
 import us.arvatosystems.com.yaas.domain.PubSubEvent;
 import us.arvatosystems.com.yaas.domain.PubSubReadResponse;
+import us.arvatosystems.com.yaas.domain.PubSubReadSettings;
 import us.arvatosystems.com.yaas.domain.SMSMessage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +60,7 @@ public class IncomingMessagePoller
 	/**
 	 * Reads new messages from the PubSub service every 5 seconds and publishes and event for each new message.
 	 */
-	@Scheduled(fixedDelay = 5000)
+	@Scheduled(fixedDelay = 10000)
 	public void checkForNewMessages()
 	{
 		if (!pollingDisabled)
@@ -71,6 +75,7 @@ public class IncomingMessagePoller
 				public Response execute(final AccessToken token)
 				{
 					return pubSubClient.topics().topicOwnerClientEventType(PUBSUB_TOPIC_OWNER, pubSubTopic).read().preparePost()
+							.withPayload(Entity.entity(new PubSubReadSettings(10, 5000, true), MediaType.APPLICATION_JSON))
 							.withHeader("Authorization", "Bearer " + token.getValue()).withHeader("Content-type", "application/json")
 							.withHeader("Accept", "application/json").execute();
 				}
@@ -85,7 +90,7 @@ public class IncomingMessagePoller
 				else
 				{
 					final PubSubReadResponse pubSubResponse = response.readEntity(PubSubReadResponse.class);
-					LOG.info("PubSub read reuest was successfull (Status: {}). {} new events", response.getStatus(), pubSubResponse
+					LOG.info("PubSub read reuest was successfull (Status: {}). {} new event(s)", response.getStatus(), pubSubResponse
 							.getEvents().size());
 
 					processNewMessages(pubSubResponse);
@@ -106,7 +111,7 @@ public class IncomingMessagePoller
 			try
 			{
 				final SMSMessage message = objectMapper.readValue(event.getPayload(), SMSMessage.class);
-				LOG.info("Processing new incoming message from '{}' with test '{}'", message.getFromNumber(),
+				LOG.info("Processing new incoming message from '{}' with text '{}'", Util.maskPhoneNo(message.getFromNumber()),
 						message.getMessageText());
 				publisher.publishEvent(new IncomingMessageEvent(this, message.getFromNumber(), message.getToNumber(), message
 						.getMessageText()));
@@ -116,6 +121,21 @@ public class IncomingMessagePoller
 				LOG.error("Unable to understand payload format of message " + response.getId(), e);
 			}
 		}
+	}
+
+	public void setAuthTemplate(final AuthorizedExecutionTemplate authTemplate)
+	{
+		this.authTemplate = authTemplate;
+	}
+
+	public void setPublisher(final ApplicationEventPublisher publisher)
+	{
+		this.publisher = publisher;
+	}
+
+	public void setObjectMapper(final ObjectMapper objectMapper)
+	{
+		this.objectMapper = objectMapper;
 	}
 
 }

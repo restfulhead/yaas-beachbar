@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import us.arvatosystems.com.yaas.Util;
 import us.arvatosystems.com.yaas.service.BeachBarFlow.Callback;
 import us.arvatosystems.com.yaas.service.BeachBarFlowImpl.Conversation;
 import us.arvatosystems.com.yaas.service.message.IncomingMessageEvent;
@@ -52,21 +53,21 @@ public class BeachBarService implements ApplicationListener<IncomingMessageEvent
 
 			// ok, last interaction was complete. let's remove and start a new one.
 			if (ctx.isTerminated()) {
-				LOG.info("Previous conversation with customer {} is complete. Starting new one...", customer);
+				LOG.info("Previous conversation with customer {} is complete. Starting new one...", Util.maskPhoneNo(customer));
 				ctx = null;
 				state.put(customer, flow.start(event));
 			}
 			else
 			{
 				// continue previous interaction
-				LOG.info("Proceed with existing conversation with customer {}.", customer);
+				LOG.info("Proceed with existing conversation with customer {}.", Util.maskPhoneNo(customer));
 				flow.proceed(ctx, event);
 			}
 		}
 		else
 		{
 			// new customer communication -> start a new flow
-			LOG.info("Start a new conversation with customer {}.", customer);
+			LOG.info("Start a new conversation with customer {}.", Util.maskPhoneNo(customer));
 			state.put(customer, flow.start(event));
 		}
 	}
