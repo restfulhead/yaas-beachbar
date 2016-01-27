@@ -22,9 +22,27 @@ public class RulesEngineTest
 	private RulesEngineService rulesEngine;
 
 	@Test
-	public void shouldIdentifyBeer()
+	public void shouldIdentifyBeer1()
 	{
 		final String input = "I want a beer!";
+		final List<Product> beverages = rulesEngine.identifyBeverages(input);
+		assertThat(beverages.size(), is(1));
+		assertThat(beverages.get(0).getName(), equalTo("Beer"));
+	}
+
+	@Test
+	public void shouldIdentifyBeer2()
+	{
+		final String input = "🍺";
+		final List<Product> beverages = rulesEngine.identifyBeverages(input);
+		assertThat(beverages.size(), is(1));
+		assertThat(beverages.get(0).getName(), equalTo("Beer"));
+	}
+
+	@Test
+	public void shouldIdentifyBeer3()
+	{
+		final String input = "🍻 please";
 		final List<Product> beverages = rulesEngine.identifyBeverages(input);
 		assertThat(beverages.size(), is(1));
 		assertThat(beverages.get(0).getName(), equalTo("Beer"));

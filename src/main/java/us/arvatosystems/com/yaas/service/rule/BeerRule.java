@@ -8,7 +8,7 @@ public class BeerRule extends BeverageRule
 
 	public BeerRule(final String input)
 	{
-		super("beer rule", input, "beer");
+		super("beer rule", input, "beer", "🍺", "🍻");
 	}
 
 	@Override
