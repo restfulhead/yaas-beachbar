@@ -30,3 +30,6 @@ RemoteSystemsTempFiles/
 *.number
 
 /target/
+
+# Potentially sensitive properties
+src/main/resources/default.properties
