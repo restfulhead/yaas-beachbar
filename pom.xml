@@ -214,6 +214,15 @@
 		                    <sourceRamlUri>https://devportal.yaas.io/services/pubsub/v1/api.raml</sourceRamlUri>
 		                </configuration>
 		            </execution>
+		            <execution>
+		                <id>client-generation-order</id>
+		                <goals>
+		                    <goal>generate-client</goal>
+		                </goals>
+		                <configuration>
+		                    <sourceRamlUri>https://devportal.yaas.io/services/order/v1/api.raml</sourceRamlUri>
+		                </configuration>
+		            </execution>
 				</executions>
 			</plugin>
 			<plugin>

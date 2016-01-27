@@ -4,11 +4,11 @@ public class Util
 {
 	public static String maskPhoneNo(final String phoneNo)
 	{
-		if (phoneNo == null || phoneNo.length() < 5)
+		if (phoneNo == null || phoneNo.length() < 8)
 		{
 			return phoneNo;
 		}
 
-		return phoneNo.substring(0, 4).concat("****");
+		return phoneNo.substring(0, 7).concat("****");
 	}
 }

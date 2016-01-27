@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.cloud.yaas.api.ArvatoSmsServiceClient;
 import com.sap.cloud.yaas.api.HybrisPubSubServiceApiClient;
+import com.sap.cloud.yaas.api.OrderServiceClient;
 import com.sap.cloud.yaas.servicesdk.jerseysupport.logging.RequestResponseLoggingFilter;
 
 @Configuration
@@ -51,6 +52,12 @@ public class SpringApplication
 				ClientBuilder.newClient(createClientConfig()));
 
 		return client;
+	}
+
+	@Bean
+	public OrderServiceClient createOrderServiceClient()
+	{
+		return new OrderServiceClient(OrderServiceClient.DEFAULT_BASE_URI, ClientBuilder.newClient(createClientConfig()));
 	}
 
 	@Bean

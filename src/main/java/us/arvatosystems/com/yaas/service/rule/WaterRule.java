@@ -4,7 +4,7 @@ import us.arvatosystems.com.yaas.domain.Product;
 
 public class WaterRule extends BeverageRule
 {
-	private static final Product water = new Product("Water", "546");
+	private static final Product water = new Product("Water", "water", 2);
 
 	public WaterRule(final String input)
 	{
