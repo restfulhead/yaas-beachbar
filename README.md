@@ -4,6 +4,8 @@ The beach bar API allows you to order your favorite beverages via SMS.
 This example shows how to use [YaaS services](https://www.yaas.io/) to read SMS messages and send an automated reply using the [arvato SMS service](http://devportal.arvatosystems.io/sms/index.html). Additionally new orders are posted to the hybris Order service.
 
 ## Setup and configuration
+If you are new to YaaS, [start here](https://devportal.yaas.io/gettingstarted/) to understand the basics of registering and setting up a project. If you plan to run and/or import the code to your IDE, it's probably helpful to also read about the [YaaS service SDK](https://devportal.yaas.io/tools/servicesdk/index.html) and its plugins. 
+
 
 ### Your Builder project
 To run this service you will need to setup a new YaaS project using the [Builder](https://builder.yaas.io/). Your project needs to subscribe to the following packages:
