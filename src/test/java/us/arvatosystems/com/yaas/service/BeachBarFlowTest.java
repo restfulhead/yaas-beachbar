@@ -11,7 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,8 +21,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -31,7 +28,6 @@ import us.arvatosystems.com.yaas.domain.Product;
 import us.arvatosystems.com.yaas.service.BeachBarFlowImpl.Conversation;
 import us.arvatosystems.com.yaas.service.BeachBarFlowImpl.States;
 import us.arvatosystems.com.yaas.service.message.IncomingMessageEvent;
-import us.arvatosystems.com.yaas.service.message.OutgoingMessageEvent;
 import us.arvatosystems.com.yaas.service.rule.RulesEngineService;
 import au.com.ds.ef.StateEnum;
 import au.com.ds.ef.StatefulContext;
@@ -83,17 +79,17 @@ public class BeachBarFlowTest
 		// beach bar parses order and sends order summary
 		waitForState(ctx, States.WAITING_FOR_ORDER_CONFIRMATION);
 		assertThat(publisher.getEvents().size(), is(2));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("1 Beer. Reply YES"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("1 Beer. Reply YES"));
 
 		// customer confirms
 		flow.proceed(ctx, createIncomingEvent(ctx, "YES"));
 		waitForState(ctx, States.COMPLETE);
 		assertThat(publisher.getEvents().size(), is(3));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("Thank you!"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("Thank you!"));
 
 		assertTrue(ctx.isTerminated());
 		verify(callback, times(1)).onComplete(any());
@@ -110,17 +106,17 @@ public class BeachBarFlowTest
 		// beach bar parses order and sends order summary
 		waitForState(ctx, States.WAITING_FOR_ORDER_CONFIRMATION);
 		assertThat(publisher.getEvents().size(), is(2));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("1 Water. Reply YES"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("1 Water. Reply YES"));
 		assertFalse(ctx.isTerminated());
 
 		// customer replies with unexpected message
 		flow.proceed(ctx, createIncomingEvent(ctx, "Wzzup??!"));
 		waitForMessageCount(publisher.getEvents(), 3);
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("YES or NO"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("YES or NO"));
 		assertFalse(ctx.isTerminated());
 
 		// customer cancels
@@ -128,9 +124,9 @@ public class BeachBarFlowTest
 
 		waitForState(ctx, States.COMPLETE);
 		assertThat(publisher.getEvents().size(), is(4));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("canceled"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("canceled"));
 
 		assertTrue(ctx.isTerminated());
 		verify(callback, times(1)).onComplete(any());
@@ -146,17 +142,17 @@ public class BeachBarFlowTest
 
 		// beach bar parses order and replies with a "try again" message
 		waitForMessageCount(publisher.getEvents(), 2);
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("try again"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("try again"));
 
 		// now send a valid order
 		flow.proceed(ctx, createIncomingEvent(ctx, "I want a beer!"));
 		waitForState(ctx, States.WAITING_FOR_ORDER_CONFIRMATION);
 		assertThat(publisher.getEvents().size(), is(3));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("order"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("order"));
 
 		assertFalse(ctx.isTerminated());
 		verify(callback, times(0)).onComplete(any());
@@ -170,9 +166,9 @@ public class BeachBarFlowTest
 		// beach bar replies with welcome
 		waitForState(ctx, States.WAITING_FOR_ORDER);
 		assertThat(publisher.getEvents().size(), is(1));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getFromNumber(), equalTo("456"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getToNumber(), equalTo("123"));
-		assertThat(publisher.getLatestMessageEvent().getMessage().getMessageText(), containsString("Welcome"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("Welcome"));
 
 		return ctx;
 	}
@@ -225,40 +221,6 @@ public class BeachBarFlowTest
 			{
 				throw new IllegalStateException("Giving up on context '{}' to enter state '{}'");
 			}
-		}
-	}
-
-	protected static class LoggingApplicationEventPublisher implements ApplicationEventPublisher
-	{
-		private final List<Object> events = new ArrayList<>();
-
-		@Override
-		public void publishEvent(final ApplicationEvent event)
-		{
-			LOG.info("Received event {}", event);
-			events.add(event);
-		}
-
-		@Override
-		public void publishEvent(final Object event)
-		{
-			LOG.info("Received event {}", event);
-			events.add(events);
-		}
-
-		public List<Object> getEvents()
-		{
-			return events;
-		}
-
-		public OutgoingMessageEvent getLatestMessageEvent()
-		{
-			if (events.size() < 1)
-			{
-				return null;
-			}
-
-			return (OutgoingMessageEvent) events.get(events.size() - 1);
 		}
 	}
 }
