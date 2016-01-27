@@ -13,17 +13,22 @@ To run this service you will need to setup a new YaaS project using the [Builder
 
 You also need to create a new application in order to receive `clientId` and `clientSecret`.
 
-Open `/src/main/resources/default.properties` and insert the `TENAT` (id of your project), `CLIENT_ID` and `CLIENT_SECRET`.
-
 ### SMS service
 To be able to send and receive SMS messages, you need to first purchase a phone number. Please refer to the arvato [SMS service documentation](http://devportal.arvatosystems.io/sms/index.html) for further details.
 
 When purchasing the number make sure that the `publishToQueue` flag is set to true. (Or use the Update API to do it at a later time). This will publish incoming SMS messages to the Pubsub service.
 
+### Beach Bar config
+Copy the template config from `/src/main/resources/default.sample.properties` to `/src/main/resources/default.properties`.
+
+Insert the `TENAT` (id of your project), `CLIENT_ID` and `CLIENT_SECRET`.
+
 ### Build and Run
 Build using the following command: `mvn install`.
 
 Run the web server with `mvn jetty:run`.
+
+Start a conversation with the Beach Bar by sending a message to the number you've purchased.
 
 ## How it works
 The [arvato SMS service](http://devportal.arvatosystems.io/sms/index.html) is used to receive incoming SMS messages from customers. It is configured to publish new messages to the [YaaS PubSub service](https://devportal.yaas.io/services/pubsub/latest/index.html) under the `sms_incoming` event topic. 
