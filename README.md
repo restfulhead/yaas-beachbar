@@ -4,7 +4,7 @@ The beach bar API allows you to order your favorite beverages via SMS.
 This example shows how to use [YaaS services](https://www.yaas.io/) to read SMS messages and send an automated reply using the [arvato SMS service](http://devportal.arvatosystems.io/sms/index.html). Additionally new orders are posted to the hybris Order service.
 
 ## Setup and configuration
-If you are new to YaaS, [start here](https://devportal.yaas.io/gettingstarted/) to understand the basics of registering and setting up a project. If you plan to run and/or import the code to your IDE, it's probably helpful to also read about the [YaaS service SDK](https://devportal.yaas.io/tools/servicesdk/index.html) and its plugins. 
+If you are new to YaaS, [start here](https://devportal.yaas.io/gettingstarted/) to understand the basics of registering and setting up a project. If you plan to run and/or import the code to your IDE, it's probably helpful to also read about the [YaaS service SDK](https://devportal.yaas.io/tools/servicesdk/index.html) and its plugins.
 
 
 ### Your Builder project
@@ -26,14 +26,14 @@ Copy the template config from `/src/main/resources/default.sample.properties` to
 Insert the `TENAT` (id of your project), `CLIENT_ID` and `CLIENT_SECRET`.
 
 ### Build and Run
-Build using the following command: `mvn install`.
+Build using the following command: `mvn install`. Note: As of now the YaaS SDK requires you to be online during the build. This is because it downloads the API specifications in order to generate the YaaS web service clients.
 
 Run the web server with `mvn jetty:run`.
 
 Start a conversation with the Beach Bar by sending a message to the number you've purchased.
 
 ## How it works
-The [arvato SMS service](http://devportal.arvatosystems.io/sms/index.html) is used to receive incoming SMS messages from customers. It is configured to publish new messages to the [YaaS PubSub service](https://devportal.yaas.io/services/pubsub/latest/index.html) under the `sms_incoming` event topic. 
+The [arvato SMS service](http://devportal.arvatosystems.io/sms/index.html) is used to receive incoming SMS messages from customers. It is configured to publish new messages to the [YaaS PubSub service](https://devportal.yaas.io/services/pubsub/latest/index.html) under the `sms_incoming` event topic.
 
 The Beach Bar API polls the PubSub service to receive new incoming messages. A simple State Machine based on [EasyFlow](http://datasymphony.com.au/open-source/easyflow) is used to manage the state for each customer (based on their phone number). Depending on the state, the service either sends a welcome message, a message to confirm the order or the order confirmation.
 
