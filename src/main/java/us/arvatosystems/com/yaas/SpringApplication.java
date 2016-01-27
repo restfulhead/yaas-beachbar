@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.cloud.yaas.api.ArvatoSmsServiceClient;
 import com.sap.cloud.yaas.api.HybrisPubSubServiceApiClient;
@@ -54,7 +56,11 @@ public class SpringApplication
 	@Bean
 	public ObjectMapper createObjectMapper()
 	{
-		return new ObjectMapper();
+		final ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+		return mapper;
 	}
 
 	private ClientConfig createClientConfig()
