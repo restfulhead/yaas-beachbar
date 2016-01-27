@@ -16,7 +16,7 @@ You also need to create a new application in order to receive `clientId` and `cl
 Open `/src/main/resources/default.properties` and insert the `TENAT` (id of your project), `CLIENT_ID` and `CLIENT_SECRET`.
 
 ### SMS service
-To be able to send and receive SMS messages, you need to first purchase a phone number. Please refer to the arvato [SMS service documentation]((http://devportal.arvatosystems.io/sms/index.html) for further details.
+To be able to send and receive SMS messages, you need to first purchase a phone number. Please refer to the arvato [SMS service documentation](http://devportal.arvatosystems.io/sms/index.html) for further details.
 
 When purchasing the number make sure that the `publishToQueue` flag is set to true. (Or use the Update API to do it at a later time). This will publish incoming SMS messages to the Pubsub service.
 
