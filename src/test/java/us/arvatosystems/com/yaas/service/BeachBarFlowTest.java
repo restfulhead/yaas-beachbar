@@ -7,6 +7,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,6 +70,8 @@ public class BeachBarFlowTest
 		when(rulesEngine.identifyBeverages("I want a water!")).thenReturn(
 				Collections.singletonList(new Product("Water", "water", 2)));
 
+		doNothing().when(orderService).placeOrder(anyList(), anyString());
+
 		flow = new BeachBarFlowImpl();
 		flow.setPublisher(publisher);
 		flow.setRulesEngine(rulesEngine);
@@ -100,6 +106,7 @@ public class BeachBarFlowTest
 
 		assertTrue(ctx.isTerminated());
 		verify(callback, times(1)).onComplete(any());
+		verify(orderService, times(1)).placeOrder(anyList(), anyString());
 	}
 
 	@Test
@@ -137,6 +144,7 @@ public class BeachBarFlowTest
 
 		assertTrue(ctx.isTerminated());
 		verify(callback, times(1)).onComplete(any());
+		verify(orderService, times(0)).placeOrder(anyList(), anyString());
 	}
 
 	@Test
@@ -163,6 +171,55 @@ public class BeachBarFlowTest
 
 		assertFalse(ctx.isTerminated());
 		verify(callback, times(0)).onComplete(any());
+		verify(orderService, times(0)).placeOrder(anyList(), anyString());
+	}
+
+	@Test
+	public void shouldRetryIfOrderPostFailed() throws LogicViolationError
+	{
+		doThrow(new IllegalStateException("Simulating order POST failure")).when(orderService).placeOrder(anyList(), anyString());
+
+		final Conversation ctx = testWelcome();
+
+		// customer sends order
+		flow.proceed(ctx, createIncomingEvent(ctx, "I want a water!"));
+
+		// beach bar parses order and sends order summary
+		waitForState(ctx, States.WAITING_FOR_ORDER_CONFIRMATION);
+		assertThat(publisher.getEvents().size(), is(2));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("1 Water. Reply YES"));
+		assertFalse(ctx.isTerminated());
+
+		// customer replies with unexpected message
+		flow.proceed(ctx, createIncomingEvent(ctx, "Wzzup??!"));
+		waitForMessageCount(publisher.getEvents(), 3);
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("YES or NO"));
+		assertFalse(ctx.isTerminated());
+
+		// customer confirms, but placing the order fails
+		flow.proceed(ctx, createIncomingEvent(ctx, "👍"));
+
+		waitForMessageCount(publisher.getEvents(), 4);
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getFromNumber(), equalTo("456"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getToNumber(), equalTo("123"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("try again"));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("can't process"));
+
+		// now simulate success
+		doNothing().when(orderService).placeOrder(anyList(), anyString());
+
+		flow.proceed(ctx, createIncomingEvent(ctx, "👍"));
+		waitForState(ctx, States.COMPLETE);
+		assertThat(publisher.getEvents().size(), is(5));
+		assertThat(publisher.getLatestOutgoingMessageEvent().getMessage().getMessageText(), containsString("Thank you!"));
+
+		assertTrue(ctx.isTerminated());
+		verify(callback, times(1)).onComplete(any());
+		verify(orderService, times(2)).placeOrder(anyList(), anyString());
 	}
 
 	protected Conversation testWelcome()
