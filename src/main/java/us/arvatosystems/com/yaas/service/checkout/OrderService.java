@@ -1,6 +1,5 @@
 package us.arvatosystems.com.yaas.service.checkout;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,11 +18,10 @@ import us.arvatosystems.com.yaas.domain.Customer;
 import us.arvatosystems.com.yaas.domain.Product;
 import us.arvatosystems.com.yaas.domain.SalesOrder;
 import us.arvatosystems.com.yaas.domain.SalesOrderEntry;
+import us.arvatosystems.com.yaas.helper.Util;
 
 import com.sap.cloud.yaas.api.OrderServiceClient;
 import com.sap.cloud.yaas.servicesdk.authorization.AccessToken;
-import com.sap.cloud.yaas.servicesdk.authorization.AuthorizationScope;
-import com.sap.cloud.yaas.servicesdk.authorization.DiagnosticContext;
 import com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecutionCallback;
 import com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecutionTemplate;
 
@@ -50,9 +48,8 @@ public class OrderService
 	{
 		LOG.info("Sending new order for {} to YaaS", phoneNo);
 
-		final Response response = authTemplate.executeAuthorized(
-				new AuthorizationScope(Collections.singletonList(SCOPE_CREATE_ORDER)), new DiagnosticContext("not implemented yet",
-						Integer.valueOf(0)), new AuthorizedExecutionCallback<Response>()
+		final Response response = authTemplate.executeAuthorized(Util.newScope(SCOPE_CREATE_ORDER), Util.newContext(),
+				new AuthorizedExecutionCallback<Response>()
 				{
 					@Override
 					public Response execute(final AccessToken token)

@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import us.arvatosystems.com.yaas.Util;
+import us.arvatosystems.com.yaas.helper.Util;
 
 import com.sap.cloud.yaas.api.ArvatoSmsServiceClient;
 import com.sap.cloud.yaas.servicesdk.authorization.AccessToken;
 import com.sap.cloud.yaas.servicesdk.authorization.AuthorizationScope;
-import com.sap.cloud.yaas.servicesdk.authorization.DiagnosticContext;
 import com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecutionCallback;
 import com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecutionTemplate;
 
@@ -40,8 +39,8 @@ public class OutgoingMessageProcessor implements ApplicationListener<OutgoingMes
 		LOG.info("Sending new message to '{}' with text '{}'.", Util.maskPhoneNo(event.getMessage().getToNumber()), event
 				.getMessage().getMessageText());
 
-		final Response response = authTemplate.executeAuthorized(new AuthorizationScope(), new DiagnosticContext(
-				"not implemented yet", Integer.valueOf(0)), new AuthorizedExecutionCallback<Response>()
+		final Response response = authTemplate.executeAuthorized(new AuthorizationScope(), Util.newContext(),
+				new AuthorizedExecutionCallback<Response>()
 		{
 			@Override
 			public Response execute(final AccessToken token)

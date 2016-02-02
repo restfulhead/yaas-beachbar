@@ -1,7 +1,6 @@
 package us.arvatosystems.com.yaas.service.message;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -16,17 +15,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import us.arvatosystems.com.yaas.Util;
 import us.arvatosystems.com.yaas.domain.PubSubEvent;
 import us.arvatosystems.com.yaas.domain.PubSubReadResponse;
 import us.arvatosystems.com.yaas.domain.PubSubReadSettings;
 import us.arvatosystems.com.yaas.domain.SMSMessage;
+import us.arvatosystems.com.yaas.helper.Util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.cloud.yaas.api.HybrisPubSubServiceApiClient;
 import com.sap.cloud.yaas.servicesdk.authorization.AccessToken;
-import com.sap.cloud.yaas.servicesdk.authorization.AuthorizationScope;
-import com.sap.cloud.yaas.servicesdk.authorization.DiagnosticContext;
 import com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecutionCallback;
 import com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecutionTemplate;
 
@@ -68,8 +65,8 @@ public class IncomingMessagePoller
 			final String scope = "hybris.pubsub.topic=" + PUBSUB_TOPIC_OWNER + "." + pubSubTopic;
 			LOG.debug("Checking for new messages under {}", scope);
 
-			final Response response = authTemplate.executeAuthorized(new AuthorizationScope(Collections.singletonList(scope)),
-					new DiagnosticContext("not implemented yet", Integer.valueOf(0)), new AuthorizedExecutionCallback<Response>()
+			final Response response = authTemplate.executeAuthorized(Util.newScope(scope), Util.newContext(),
+					new AuthorizedExecutionCallback<Response>()
 			{
 				@Override
 				public Response execute(final AccessToken token)

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import us.arvatosystems.com.yaas.Util;
+import us.arvatosystems.com.yaas.helper.Util;
 import us.arvatosystems.com.yaas.service.BeachBarFlow.Callback;
 import us.arvatosystems.com.yaas.service.BeachBarFlowImpl.Conversation;
 import us.arvatosystems.com.yaas.service.message.IncomingMessageEvent;
