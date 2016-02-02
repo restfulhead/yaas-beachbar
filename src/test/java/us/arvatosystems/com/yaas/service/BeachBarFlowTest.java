@@ -66,9 +66,9 @@ public class BeachBarFlowTest
 		publisher = new LoggingApplicationEventPublisher();
 
 		when(rulesEngine.identifyBeverages("I want a beer!")).thenReturn(
-				Collections.singletonList(new Product("Beer", "beer", 4.50)));
+				Collections.singletonList(new Product("Beer", "beer", 4.50, "")));
 		when(rulesEngine.identifyBeverages("I want a water!")).thenReturn(
-				Collections.singletonList(new Product("Water", "water", 2)));
+				Collections.singletonList(new Product("Water", "water", 2, "")));
 
 		doNothing().when(orderService).placeOrder(anyList(), anyString());
 

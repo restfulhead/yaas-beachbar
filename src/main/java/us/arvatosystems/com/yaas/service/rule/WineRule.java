@@ -4,7 +4,7 @@ import us.arvatosystems.com.yaas.domain.Product;
 
 public class WineRule extends BeverageRule
 {
-	private static final Product beer = new Product("Wine", "wine", 5.00);
+	public static final Product WINE = new Product("Wine", "wine", 5.00, "56b1317aef2ed519dbf59d33");
 
 	public WineRule(final String input)
 	{
@@ -14,7 +14,7 @@ public class WineRule extends BeverageRule
 	@Override
 	public void execute() throws Exception
 	{
-		this.product = beer;
+		this.product = WINE;
 	}
 
 }

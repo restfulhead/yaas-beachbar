@@ -4,7 +4,7 @@ import us.arvatosystems.com.yaas.domain.Product;
 
 public class WaterRule extends BeverageRule
 {
-	private static final Product water = new Product("Water", "water", 2);
+	public static final Product WATER = new Product("Water", "water", 2, "56b130191a6e854490d92a8a");
 
 	public WaterRule(final String input)
 	{
@@ -14,7 +14,7 @@ public class WaterRule extends BeverageRule
 	@Override
 	public void execute() throws Exception
 	{
-		this.product = water;
+		this.product = WATER;
 
 	}
 
