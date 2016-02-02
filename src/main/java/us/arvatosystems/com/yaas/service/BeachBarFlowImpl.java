@@ -165,7 +165,7 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 	protected boolean placeOrCancelOrderAndSendFinalMessage(final Conversation ctx)
 	{
 		final String msg = ctx.getLastMessageFromCustomer().toLowerCase();
-		if (msg.startsWith("yes"))
+		if (msg.startsWith("yes") || msg.contains("👍"))
 		{
 			// ok, we're good to go with placing the order
 			placeOrder(ctx);
