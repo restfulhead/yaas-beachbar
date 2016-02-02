@@ -18,6 +18,9 @@ public class RulesEngineService
 		final List<BeverageRule> rules = new ArrayList<>();
 		rules.add(new BeerRule(input));
 		rules.add(new WaterRule(input));
+		rules.add(new WineRule(input));
+		rules.add(new CocktailRule(input));
+		rules.add(new CoffeeRule(input));
 
 		final RulesEngine rulesEngine = RulesEngineBuilder.aNewRulesEngine().withSkipOnFirstFailedRule(false)
 				.withSkipOnFirstAppliedRule(false).build();

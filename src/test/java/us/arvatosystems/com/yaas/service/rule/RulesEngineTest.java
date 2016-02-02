@@ -67,4 +67,15 @@ public class RulesEngineTest
 		assertThat(beverages.get(1).getName(), equalTo("Water"));
 	}
 
+	@Test
+	public void shouldIdentifyBeerWineAndCoffee()
+	{
+		final String input = "🍺☕🍷";
+		final List<Product> beverages = rulesEngine.identifyBeverages(input);
+		assertThat(beverages.size(), is(3));
+		assertThat(beverages.get(0).getName(), equalTo("Beer"));
+		assertThat(beverages.get(1).getName(), equalTo("Wine"));
+		assertThat(beverages.get(2).getName(), equalTo("Coffee"));
+	}
+
 }

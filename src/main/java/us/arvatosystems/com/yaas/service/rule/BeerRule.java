@@ -15,7 +15,6 @@ public class BeerRule extends BeverageRule
 	public void execute() throws Exception
 	{
 		this.product = beer;
-
 	}
 
 }
