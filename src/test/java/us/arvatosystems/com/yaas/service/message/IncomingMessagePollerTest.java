@@ -64,7 +64,8 @@ public class IncomingMessagePollerTest
 
 		final PubSubReadResponse mockResponse = new PubSubReadResponse();
 		final PubSubEvent mockEvent = new PubSubEvent();
-		mockEvent.setPayload("{\"FromCountry\":\"US\",\"FromCity\":\"GREENVILLE\",\"From\":\"+1231231234\",\"To\":\"+6543219876\",\"MessageSid\":\"SM189aa15b50e124ae1626b72ef73d9e78\",\"FromZip\":\"12345\",\"Body\":\"Hi there! 🍺 and 🍻\",\"FromState\":\"NY\"}");
+		mockEvent
+				.setPayload("{\"fromNumber\":\"+1231231234\",\"toNumber\":\"+6543219876\",\"messageText\":\"Hi there! 🍺 and 🍻\"}");
 		mockResponse.setEvents(Collections.singletonList(mockEvent));
 
 		testPublisher = new LoggingApplicationEventPublisher();
