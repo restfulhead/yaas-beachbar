@@ -10,12 +10,14 @@ public class SalesOrder
 
 	private BigDecimal totalPrice;
 
+	private Customer customer;
+
 	public SalesOrder()
 	{
 		super();
 	}
 
-	public SalesOrder(final List<SalesOrderEntry> entries)
+	public SalesOrder(final List<SalesOrderEntry> entries, final Customer customer)
 	{
 		this.entries = entries;
 
@@ -26,6 +28,7 @@ public class SalesOrder
 		}
 
 		this.totalPrice = total.setScale(2, RoundingMode.HALF_UP);
+		this.customer = customer;
 	}
 
 	public List<SalesOrderEntry> getEntries()
@@ -46,6 +49,16 @@ public class SalesOrder
 	public void setTotalPrice(final BigDecimal totalPrice)
 	{
 		this.totalPrice = totalPrice;
+	}
+
+	public Customer getCustomer()
+	{
+		return customer;
+	}
+
+	public void setCustomer(final Customer customer)
+	{
+		this.customer = customer;
 	}
 
 }

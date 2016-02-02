@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public class Product
 {
 	private String name;
+	private String description;
 	private String sku;
 	private BigDecimal price;
 
@@ -16,6 +17,7 @@ public class Product
 	public Product(final String name, final String sku, final double price)
 	{
 		this.name = name;
+		this.description = name;
 		this.sku = sku;
 		this.price = BigDecimal.valueOf(price);
 	}
@@ -48,6 +50,16 @@ public class Product
 	public void setPrice(final BigDecimal price)
 	{
 		this.price = price;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(final String description)
+	{
+		this.description = description;
 	}
 
 }

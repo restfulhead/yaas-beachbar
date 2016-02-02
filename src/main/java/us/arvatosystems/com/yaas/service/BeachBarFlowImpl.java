@@ -7,12 +7,15 @@ import java.util.List;
 
 import jersey.repackaged.com.google.common.base.Throwables;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import us.arvatosystems.com.yaas.domain.Product;
+import us.arvatosystems.com.yaas.service.checkout.OrderService;
 import us.arvatosystems.com.yaas.service.message.IncomingMessageEvent;
 import us.arvatosystems.com.yaas.service.message.OutgoingMessageEvent;
 import us.arvatosystems.com.yaas.service.rule.RulesEngineService;
@@ -30,6 +33,8 @@ import au.com.ds.ef.err.LogicViolationError;
 @Component
 public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 {
+	private static final Logger LOG = LoggerFactory.getLogger(BeachBarFlowImpl.class);
+
 	protected enum States implements StateEnum
 	{
 		WELCOME, WAITING_FOR_ORDER, PARSE_ORDER, WAITING_FOR_ORDER_CONFIRMATION, PARSE_ORDER_CONFIRMATION, COMPLETE;
@@ -45,6 +50,9 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 
 	@Autowired
 	private RulesEngineService rulesEngine;
+
+	@Autowired
+	private OrderService orderService;
 
 	private Callback callback;
 
@@ -168,9 +176,15 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 		if (msg.startsWith("yes") || msg.contains("👍"))
 		{
 			// ok, we're good to go with placing the order
-			placeOrder(ctx);
-			sendMessage(ctx, "Thank you! Your order is in the works.");
-			return true;
+			if (placeOrder(ctx))
+			{
+				sendMessage(ctx, "Thank you! Your order is in the works.");
+				return true;
+			}
+
+			// uh oh, hopefully this never happens
+			sendMessage(ctx, "Sorry, we can't process your order at the moment. Please try again. Reply YES or NO.");
+			return false;
 		}
 		else if (msg.startsWith("no"))
 		{
@@ -184,9 +198,18 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 		return false;
 	}
 
-	protected void placeOrder(final Conversation ctx)
+	protected boolean placeOrder(final Conversation ctx)
 	{
-		// TODO
+		try
+		{
+			orderService.placeOrder(ctx.getCurrentOrder(), ctx.customerNo);
+			return true;
+		}
+		catch (final RuntimeException ex)
+		{
+			LOG.error("Unable to place order: " + ex.getMessage(), ex);
+			return false;
+		}
 	}
 
 	protected void sendMessage(final Conversation ctx, final String message)
@@ -208,6 +231,11 @@ public class BeachBarFlowImpl implements InitializingBean, BeachBarFlow
 	public void setCallback(final Callback callback)
 	{
 		this.callback = callback;
+	}
+
+	public void setOrderService(final OrderService orderService)
+	{
+		this.orderService = orderService;
 	}
 
 	public static class Conversation extends StatefulContext

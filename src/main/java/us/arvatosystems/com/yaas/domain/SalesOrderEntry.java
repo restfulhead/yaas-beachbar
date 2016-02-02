@@ -5,7 +5,7 @@ import java.math.MathContext;
 
 public class SalesOrderEntry
 {
-	private Product sku;
+	private Product product;
 	private int amount;
 	private BigDecimal unitPrice;
 	private BigDecimal totalPrice;
@@ -18,20 +18,20 @@ public class SalesOrderEntry
 	public SalesOrderEntry(final Product sku, final int amount)
 	{
 		super();
-		this.sku = sku;
+		this.product = sku;
 		this.amount = amount;
 		this.unitPrice = sku.getPrice();
 		this.totalPrice = unitPrice.multiply(BigDecimal.valueOf(amount), MathContext.DECIMAL64);
 	}
 
-	public Product getSku()
+	public Product getProduct()
 	{
-		return sku;
+		return product;
 	}
 
-	public void setSku(final Product sku)
+	public void setProduct(final Product sku)
 	{
-		this.sku = sku;
+		this.product = sku;
 	}
 
 	public int getAmount()

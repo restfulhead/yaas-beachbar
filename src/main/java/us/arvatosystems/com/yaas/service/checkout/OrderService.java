@@ -7,11 +7,15 @@ import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import us.arvatosystems.com.yaas.domain.Customer;
 import us.arvatosystems.com.yaas.domain.Product;
 import us.arvatosystems.com.yaas.domain.SalesOrder;
 import us.arvatosystems.com.yaas.domain.SalesOrderEntry;
@@ -29,7 +33,9 @@ import com.sap.cloud.yaas.servicesdk.authorization.integration.AuthorizedExecuti
 @Component
 public class OrderService
 {
-	private static final String COPE_CREATE_ORDER = "hybris.order_create";
+	private static final Logger LOG = LoggerFactory.getLogger(OrderService.class);
+
+	private static final String SCOPE_CREATE_ORDER = "hybris.order_create";
 
 	@Autowired
 	private OrderServiceClient orderServiceClient;
@@ -40,10 +46,12 @@ public class OrderService
 	@Autowired
 	private AuthorizedExecutionTemplate authTemplate;
 
-	public void placeOrder(final List<Product> products)
+	public void placeOrder(final List<Product> products, final String phoneNo)
 	{
+		LOG.info("Sending new order for {} to YaaS", phoneNo);
+
 		final Response response = authTemplate.executeAuthorized(
-				new AuthorizationScope(Collections.singletonList(COPE_CREATE_ORDER)), new DiagnosticContext("not implemented yet",
+				new AuthorizationScope(Collections.singletonList(SCOPE_CREATE_ORDER)), new DiagnosticContext("not implemented yet",
 						Integer.valueOf(0)), new AuthorizedExecutionCallback<Response>()
 				{
 					@Override
@@ -51,7 +59,8 @@ public class OrderService
 					{
 						final List<SalesOrderEntry> entries = products.stream().map(i -> new SalesOrderEntry(i, 1))
 								.collect(Collectors.toList());
-						final SalesOrder order = new SalesOrder(entries);
+						final SalesOrder order = new SalesOrder(entries, new Customer(phoneNo, "noreply@arvatosystems.io"));
+
 
 						return orderServiceClient.tenant(tenant).salesorders().preparePost()
 								.withPayload(Entity.entity(order, MediaType.APPLICATION_JSON))
@@ -60,6 +69,23 @@ public class OrderService
 					}
 				});
 
-		System.out.println(response);
+		if (response.getStatusInfo().getFamily().equals(Status.Family.SUCCESSFUL))
+		{
+			if (response.getStatus() == 201)
+			{
+				LOG.info("Order POST was successful (Status: {}). New order available at: {}", response.getStatus(), response
+						.getLocation().toString());
+			}
+			else
+			{
+				LOG.warn("Order POST was successfull, however status {} is is unexpected. Response body: {}", response.getStatus(),
+						response.readEntity(String.class));
+			}
+		}
+		else
+		{
+			throw new IllegalStateException("Order creation failed. Status " + response.getStatus() + ", Details: "
+					+ response.readEntity(String.class));
+		}
 	}
 }

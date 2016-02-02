@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import us.arvatosystems.com.yaas.domain.Product;
 import us.arvatosystems.com.yaas.service.BeachBarFlowImpl.Conversation;
 import us.arvatosystems.com.yaas.service.BeachBarFlowImpl.States;
+import us.arvatosystems.com.yaas.service.checkout.OrderService;
 import us.arvatosystems.com.yaas.service.message.IncomingMessageEvent;
 import us.arvatosystems.com.yaas.service.rule.RulesEngineService;
 import au.com.ds.ef.StateEnum;
@@ -47,6 +48,9 @@ public class BeachBarFlowTest
 	@Mock
 	private BeachBarFlow.Callback callback;
 
+	@Mock
+	private OrderService orderService;
+
 	private BeachBarFlowImpl flow;
 	private LoggingApplicationEventPublisher publisher;
 
@@ -66,6 +70,7 @@ public class BeachBarFlowTest
 		flow.setPublisher(publisher);
 		flow.setRulesEngine(rulesEngine);
 		flow.setCallback(callback);
+		flow.setOrderService(orderService);
 
 		flow.afterPropertiesSet();
 	}

@@ -25,6 +25,6 @@ public class OrderServiceIntegrationTest
 		products.add(new Product("Beer", "beer", 4.50));
 		products.add(new Product("Water", "water", 2));
 
-		orderService.placeOrder(products);
+		orderService.placeOrder(products, "+123123412345");
 	}
 }
