@@ -1,4 +1,4 @@
 <included>
 	<logger name="us.arvatosystems.com.yaas" level="DEBUG" />
-	<logger name="us.arvatosystems.com.yaas.net.request_response" level="DEBUG" />
+	<logger name="us.arvatosystems.com.yaas.net.request_response" level="WARN" />
 </included>
